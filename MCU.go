@@ -23,7 +23,7 @@ var dataPaket [NMAX]Paket
 var jumlahPaket int = 0
 
 type Hasil struct {
-	idPasien   int
+	namaPasien string
 	idPaket    int
 	tanggal    string
 	tekanan    int
@@ -68,17 +68,17 @@ func CetakDataPasien(dataPasien [NMAX]Pasien, jumlah int) {
 	fmt.Println()
 }
 
-func CariDataPasien(dataPasien [NMAX]Pasien, jumlah int, idCari int, idx int) Pasien {
+func CariDataPasien(dataPasien [NMAX]Pasien, jumlah int, namaCari string, idx int) Pasien {
 	if idx >= jumlah {
 		return Pasien{-1, "Tidak Ditemukan", -1} // Mengembalikan nilai khusus jika tidak ditemukan
 	}
-	if dataPasien[idx].id == idCari {
+	if dataPasien[idx].nama == namaCari {
 		return dataPasien[idx]
 	}
-	return CariDataPasien(dataPasien, jumlah, idCari, idx+1)
+	return CariDataPasien(dataPasien, jumlah, namaCari, idx+1)
 }
 
-func BinarySearchPasien(data [NMAX]Pasien, jumlah int, idCari int) int {
+func BinarySearchPasien(data [NMAX]Pasien, jumlah int, namaCari string) int {
 	var kiri int = 0
 	var kanan int = jumlah - 1
 	var tengah int
@@ -86,15 +86,15 @@ func BinarySearchPasien(data [NMAX]Pasien, jumlah int, idCari int) int {
 	for kiri <= kanan {
 		tengah = (kiri + kanan) / 2
 
-		if data[tengah].id == idCari {
+		if data[tengah].nama == namaCari {
 			return tengah // Mengembalikan INDEKS/POSISI data jika ditemukan
-		} else if data[tengah].id < idCari {
+		} else if data[tengah].nama < namaCari {
 			kiri = tengah + 1 // Geser pencarian ke kanan
 		} else {
 			kanan = tengah - 1 // Geser pencarian ke kiri
 		}
 	}
-	return -1 // Mengembalikan -1 jika ID tidak ditemukan
+	return -1 // Mengembalikan -1 jika nama tidak ditemukan
 }
 
 func InsertionSortAscendPasien(data *[NMAX]Pasien, jumlah int) {
@@ -111,10 +111,10 @@ func InsertionSortAscendPasien(data *[NMAX]Pasien, jumlah int) {
 }
 
 func InputDataCheckup(dataHasil *[NMAX]Hasil, jumlahHasil *int, dataPasien [NMAX]Pasien, jumlahPasien int) {
-	var idTarget int
+	var idTarget string
 	var posisi Pasien
 
-	fmt.Print("Masukkan ID Pasien yang akan di-checkup: ")
+	fmt.Print("Masukkan nama Pasien yang akan di-checkup: ")
 	fmt.Scan(&idTarget)
 
 	posisi = CariDataPasien(dataPasien, jumlahPasien, idTarget, 0)
@@ -122,7 +122,7 @@ func InputDataCheckup(dataHasil *[NMAX]Hasil, jumlahHasil *int, dataPasien [NMAX
 	if posisi.id != -1 {
 		// Basis Kasus / Kasus Berhenti: Jika ID ketemu, jalankan input data
 		if *jumlahHasil < NMAX {
-			dataHasil[*jumlahHasil].idPasien = idTarget
+			dataHasil[*jumlahHasil].namaPasien = idTarget
 			fmt.Print("Masukkan Tanggal (DD-MM-YYYY): ")
 			fmt.Scan(&dataHasil[*jumlahHasil].tanggal)
 			fmt.Print("Masukkan Tekanan Darah: ")
@@ -158,7 +158,7 @@ func CetakHasilCheckup(dataHasil [NMAX]Hasil, jumlah int, idx int) {
 
 	// Mencetak data secara sekuensial
 	fmt.Printf("\n--- Hasil Check-up ke-%d ---\n", idx+1)
-	fmt.Printf("ID Pasien  : %d\n", dataHasil[idx].idPasien)
+	fmt.Printf("Nama Pasien  : %s\n", dataHasil[idx].namaPasien)
 	fmt.Printf("Tanggal    : %s\n", dataHasil[idx].tanggal)
 	fmt.Printf("Tensi      : %d\n", dataHasil[idx].tekanan)
 	fmt.Printf("Gula Darah : %d\n", dataHasil[idx].gula)
@@ -172,6 +172,7 @@ func CetakHasilCheckup(dataHasil [NMAX]Hasil, jumlah int, idx int) {
 func main() {
 	var menu int
 	var jalan bool = true // Variabel penanda untuk perulangan
+	var namaCari string
 	var idCari int
 	var pasienDitemukan Pasien
 
@@ -200,12 +201,12 @@ func main() {
 				CetakDataPasien(dataPasien, jumlahPasien)
 			}
 		case 3:
-			// 1. Minta input ID yang mau dicari
-			fmt.Print("Masukkan ID Pasien yang dicari: ")
-			fmt.Scan(&idCari)
+			// 1. Minta input nama yang mau dicari
+			fmt.Print("Masukkan nama Pasien yang dicari: ")
+			fmt.Scan(&namaCari)
 
 			// 2. Simpan hasil kembalian fungsinya ke dalam variabel
-			pasienDitemukan = CariDataPasien(dataPasien, jumlahPasien, idCari, 0)
+			pasienDitemukan = CariDataPasien(dataPasien, jumlahPasien, namaCari, 0)
 
 			// 3. Cek apakah ID-nya bukan -1 (artinya ketemu)
 			if pasienDitemukan.id != -1 {
@@ -214,20 +215,20 @@ func main() {
 				fmt.Printf("Nama : %s\n", pasienDitemukan.nama)
 				fmt.Printf("Umur : %d\n", pasienDitemukan.umur)
 			} else {
-				fmt.Println("Maaf, data pasien dengan ID tersebut tidak ditemukan.")
+				fmt.Println("Maaf, data pasien dengan nama tersebut tidak ditemukan.")
 			}
 		case 4:
 			InputDataCheckup(&dataHasil, &jumlahHasil, dataPasien, jumlahPasien)
 		case 5:
-			// 1. Minta input ID Pasien
-			fmt.Print("Masukkan ID Pasien untuk melihat riwayat check-up: ")
-			fmt.Scan(&idCari)
+			// 1. Minta input nama Pasien
+			fmt.Print("Masukkan nama Pasien untuk melihat riwayat check-up: ")
+			fmt.Scan(&namaCari)
 
 			// 2. URUTKAN DATA PASIEN (Wajib sebelum Binary Search)
 			InsertionSortAscendPasien(&dataPasien, jumlahPasien)
 
 			// 3. CARI PASIEN MENGGUNAKAN BINARY SEARCH
-			var indeksPasien int = BinarySearchPasien(dataPasien, jumlahPasien, idCari)
+			var indeksPasien int = BinarySearchPasien(dataPasien, jumlahPasien, namaCari)
 
 			// 4. Cek apakah hasil Binary Search menemukan pasien (bukan -1)
 			if indeksPasien != -1 {
@@ -240,7 +241,7 @@ func main() {
 
 				// 5. Tampilkan semua riwayat check-up dari dataHasil
 				for i < jumlahHasil {
-					if dataHasil[i].idPasien == idCari {
+					if dataHasil[i].namaPasien == namaCari {
 						fmt.Printf("- Tanggal: %s | Tensi: %d | Gula: %d | Kolesterol: %d | Status: %s\n",
 							dataHasil[i].tanggal, dataHasil[i].tekanan, dataHasil[i].gula, dataHasil[i].kolesterol, dataHasil[i].status)
 						adaRiwayat = true
