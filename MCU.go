@@ -68,14 +68,19 @@ func CetakDataPasien(dataPasien [NMAX]Pasien, jumlah int) {
 	fmt.Println()
 }
 
-func CariDataPasien(dataPasien [NMAX]Pasien, jumlah int, namaCari string, idx int) Pasien {
-	if idx >= jumlah {
-		return Pasien{-1, "Tidak Ditemukan", -1} // Mengembalikan nilai khusus jika tidak ditemukan
+func CariDataPasien(dataPasien [NMAX]Pasien, jumlah int, namaCari string) Pasien {
+	var i int
+
+	// Looping untuk mengecek setiap pasien satu per satu
+	for i = 0; i < jumlah; i++ {
+		// Jika nama di data sama dengan nama yang dicari
+		if dataPasien[i].nama == namaCari {
+			return dataPasien[i] // Kembalikan data pasien tersebut
+		}
 	}
-	if dataPasien[idx].nama == namaCari {
-		return dataPasien[idx]
-	}
-	return CariDataPasien(dataPasien, jumlah, namaCari, idx+1)
+
+	// Jika looping selesai tapi nama tidak ditemukan
+	return Pasien{-1, "Tidak Ditemukan", -1}
 }
 
 func BinarySearchPasien(data [NMAX]Pasien, jumlah int, namaCari string) int {
@@ -110,6 +115,36 @@ func InsertionSortAscendPasien(data *[NMAX]Pasien, jumlah int) {
 	}
 }
 
+func HapusDataPasien(dataPasien *[NMAX]Pasien, jumlahPasien *int) {
+	var namaTarget string
+	var i, j int
+	var ketemu bool = false
+
+	fmt.Print("\nMasukkan Nama Pasien yang ingin dihapus: ")
+	fmt.Scan(&namaTarget)
+
+	for i = 0; i < *jumlahPasien; i++ {
+		if dataPasien[i].nama == namaTarget {
+			ketemu = true
+
+			// Geser semua data di kanannya ke arah kiri
+			for j = i; j < *jumlahPasien-1; j++ {
+				dataPasien[j] = dataPasien[j+1]
+			}
+
+			// Kurangi total jumlah pasien karena ada 1 yang dihapus
+			*jumlahPasien--
+
+			fmt.Println("Data pasien berhasil dihapus dari sistem!")
+			break
+		}
+	}
+
+	if ketemu == false {
+		fmt.Println("Maaf, data pasien dengan Nama tersebut tidak ditemukan.")
+	}
+}
+
 func InputDataCheckup(dataHasil *[NMAX]Hasil, jumlahHasil *int, dataPasien [NMAX]Pasien, jumlahPasien int) {
 	var idTarget string
 	var posisi Pasien
@@ -117,7 +152,7 @@ func InputDataCheckup(dataHasil *[NMAX]Hasil, jumlahHasil *int, dataPasien [NMAX
 	fmt.Print("Masukkan nama Pasien yang akan di-checkup: ")
 	fmt.Scan(&idTarget)
 
-	posisi = CariDataPasien(dataPasien, jumlahPasien, idTarget, 0)
+	posisi = CariDataPasien(dataPasien, jumlahPasien, idTarget)
 
 	if posisi.id != -1 {
 		// Basis Kasus / Kasus Berhenti: Jika ID ketemu, jalankan input data
@@ -173,53 +208,76 @@ func main() {
 	var menu int
 	var jalan bool = true // Variabel penanda untuk perulangan
 	var namaCari string
-	var idCari int
 	var pasienDitemukan Pasien
 
 	// Perulangan akan terus berjalan selama 'jalan' bernilai true
 	for jalan {
 		fmt.Println("\n=== SISTEM MEDICAL CHECK-UP ===")
-		fmt.Println("1. Tambah Data Pasien")
-		fmt.Println("2. Lihat Daftar Pasien")
-		fmt.Println("3. Cari Data Pasien")
-		fmt.Println("4. Tambah Data Check-up")
-		fmt.Println("5. Cari Data Check-up")
-		fmt.Println("6. Keluar")
+		fmt.Println("1. Kelola Data Pasien")
+		fmt.Println("2. Tambah Data Check-up")
+		fmt.Println("3. Cari Data Check-up")
+		fmt.Println("4. Keluar")
 		fmt.Print("Pilih menu: ")
 
 		fmt.Scan(&menu)
 
 		switch menu {
-		case 1:
-			InputDataPasien(&dataPasien, &jumlahPasien)
+		case 1: // Anggap ini adalah pilihan "Kelola Data Pasien" di Menu Utama
+			var subJalan bool = true
+			var menuPasien int
+
+			// Perulangan khusus untuk Sub-Menu
+			for subJalan {
+				fmt.Println("\n=== MENU KELOLA DATA PASIEN ===")
+				fmt.Println("1. Tambah Data Pasien")
+				fmt.Println("2. Lihat Daftar Pasien")
+				fmt.Println("3. Cari Data Pasien")
+				fmt.Println("4. Hapus Data Pasien")
+				fmt.Println("5. Kembali ke Menu Utama")
+				fmt.Print("Pilih sub-menu: ")
+				fmt.Scan(&menuPasien)
+
+				switch menuPasien {
+				case 1:
+					InputDataPasien(&dataPasien, &jumlahPasien)
+				case 2:
+					fmt.Println("\n--- DAFTAR PASIEN ---")
+					if jumlahPasien == 0 {
+						fmt.Println("Belum ada data pasien.")
+					} else {
+						InsertionSortAscendPasien(&dataPasien, jumlahPasien)
+						CetakDataPasien(dataPasien, jumlahPasien)
+					}
+				case 3:
+					// 1. Minta input nama yang mau dicari
+					fmt.Print("Masukkan nama Pasien yang dicari: ")
+					fmt.Scan(&namaCari)
+
+					// 2. Simpan hasil kembalian fungsinya ke dalam variabel
+					// Catatan: Angka 0 di belakang dihapus karena kita sudah memakai versi for loop
+					pasienDitemukan = CariDataPasien(dataPasien, jumlahPasien, namaCari)
+
+					// 3. Cek apakah ID-nya bukan -1 (artinya ketemu)
+					if pasienDitemukan.id != -1 {
+						fmt.Println("\n--- DATA DITEMUKAN ---")
+						fmt.Printf("ID   : %d\n", pasienDitemukan.id)
+						fmt.Printf("Nama : %s\n", pasienDitemukan.nama)
+						fmt.Printf("Umur : %d\n", pasienDitemukan.umur)
+					} else {
+						fmt.Println("Maaf, data pasien dengan nama tersebut tidak ditemukan.")
+					}
+				case 4:
+					HapusDataPasien(&dataPasien, &jumlahPasien)
+				case 5:
+					fmt.Println("Kembali ke Menu Utama...")
+					subJalan = false // Mematikan perulangan sub-menu agar keluar ke main switch
+				default:
+					fmt.Println("Pilihan sub-menu tidak tersedia.")
+				}
+			}
 		case 2:
-			fmt.Println("\n--- DAFTAR PASIEN ---")
-			if jumlahPasien == 0 {
-				fmt.Println("Belum ada data pasien.")
-			} else {
-				InsertionSortAscendPasien(&dataPasien, jumlahPasien)
-				CetakDataPasien(dataPasien, jumlahPasien)
-			}
-		case 3:
-			// 1. Minta input nama yang mau dicari
-			fmt.Print("Masukkan nama Pasien yang dicari: ")
-			fmt.Scan(&namaCari)
-
-			// 2. Simpan hasil kembalian fungsinya ke dalam variabel
-			pasienDitemukan = CariDataPasien(dataPasien, jumlahPasien, namaCari, 0)
-
-			// 3. Cek apakah ID-nya bukan -1 (artinya ketemu)
-			if pasienDitemukan.id != -1 {
-				fmt.Println("\n--- DATA DITEMUKAN ---")
-				fmt.Printf("ID   : %d\n", pasienDitemukan.id)
-				fmt.Printf("Nama : %s\n", pasienDitemukan.nama)
-				fmt.Printf("Umur : %d\n", pasienDitemukan.umur)
-			} else {
-				fmt.Println("Maaf, data pasien dengan nama tersebut tidak ditemukan.")
-			}
-		case 4:
 			InputDataCheckup(&dataHasil, &jumlahHasil, dataPasien, jumlahPasien)
-		case 5:
+		case 3:
 			// 1. Minta input nama Pasien
 			fmt.Print("Masukkan nama Pasien untuk melihat riwayat check-up: ")
 			fmt.Scan(&namaCari)
@@ -234,7 +292,7 @@ func main() {
 			if indeksPasien != -1 {
 				// Ambil data pasien dari hasil indeks binary search
 				pasienDitemukan = dataPasien[indeksPasien]
-				fmt.Printf("\n--- RIWAYAT CHECK-UP PASIEN: %s (ID: %d) ---\n", pasienDitemukan.nama, idCari)
+				fmt.Printf("\n--- RIWAYAT CHECK-UP PASIEN: %s (ID: %d) ---\n", pasienDitemukan.nama, pasienDitemukan.id)
 
 				var adaRiwayat bool = false
 				var i int = 0
@@ -255,7 +313,7 @@ func main() {
 			} else {
 				fmt.Println("Maaf, data pasien dengan ID tersebut tidak ditemukan.")
 			}
-		case 6:
+		case 4:
 			fmt.Println("Terima kasih!")
 			jalan = false // Mengubah nilai menjadi false agar perulangan for berhenti
 		default:
