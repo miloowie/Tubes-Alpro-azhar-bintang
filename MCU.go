@@ -5,9 +5,10 @@ import "fmt"
 const NMAX int = 100
 
 type Pasien struct {
-	id   int
-	nama string
-	umur int
+	id    int
+	nama  string
+	umur  int
+	paket string // Menyimpan nama paket yang dipilih pasien (EPIC/LEGEND/MYTHIC)
 }
 
 var dataPasien [NMAX]Pasien
@@ -24,12 +25,28 @@ var jumlahPaket int = 0
 
 type Hasil struct {
 	namaPasien string
-	idPaket    int
+	paket      string
 	tanggal    string
+	status     string
+
+	// === FIELD PAKET EPIC ===
 	tekanan    int
+	nadi       int
+	suhu       float64
 	gula       int
 	kolesterol int
-	status     string
+
+	// === FIELD TAMBAHAN PAKET LEGEND ===
+	hdl          int
+	ldl          int
+	trigliserida int
+	asamUrat     float64
+	ekg          string // Diisi teks (misal: "Normal" / "Ada Arimia")
+
+	// === FIELD TAMBAHAN PAKET MYTHIC ===
+	hba1c       float64
+	usgPerut    string // Diisi teks (misal: "Aman" / "Fatty Liver")
+	kondisiMata string // Diisi teks (misal: "Silinder" / "Normal")
 }
 
 var dataHasil [NMAX]Hasil
@@ -80,7 +97,8 @@ func CariDataPasien(dataPasien [NMAX]Pasien, jumlah int, namaCari string) Pasien
 	}
 
 	// Jika looping selesai tapi nama tidak ditemukan
-	return Pasien{-1, "Tidak Ditemukan", -1}
+	// Tambahkan , "" di akhir sebelum tanda kurung kurawal tutup
+	return Pasien{-1, "Tidak Ditemukan", -1, ""}
 }
 
 func BinarySearchPasien(data [NMAX]Pasien, jumlah int, namaCari string) int {
@@ -145,63 +163,271 @@ func HapusDataPasien(dataPasien *[NMAX]Pasien, jumlahPasien *int) {
 	}
 }
 
+func TampilkanDaftarPaket() {
+	fmt.Print(`
+================================================================================
+                         DAFTAR PAKET MEDICAL CHECK-UP                          
+================================================================================
+
+1. Paket EPIC (Basic & Essential Check)
+   Slogan: "Pemeriksaan dasar, biar gak beban tim dan gak nyangkut di badak selamanya."
+   
+   Paket ini ditujukan untuk pemeriksaan kesehatan dasar (skrining awal) guna 
+   memastikan fungsi organ vital dasar berjalan dengan baik. Cocok untuk usia 
+   muda atau yang baru pertama kali MCU.
+   
+   Isi Pemeriksaan:
+   • Pemeriksaan Fisik & Tanda Vital: 
+     Tekanan darah, denyut nadi, indeks massa tubuh (IMB), dan suhu tubuh.
+   • Laboratorium Dasar:
+     - Darah Rutin (Hematologi): Cek hemoglobin, leukosit, trombosit (skrining anemia/infeksi).
+     - Urine Rutin (Urinalisis): Cek fungsi ginjal dasar & mendeteksi infeksi saluran kemih.
+     - Profil Gula Darah: Gula Darah Puasa (skrining awal diabetes).
+     - Profil Lemak Dasar: Kolesterol Total.
+   • Konsultasi Dokter: Evaluasi hasil pemeriksaan dokter umum.
+
+--------------------------------------------------------------------------------
+
+2. Paket LEGEND (Intermediate & Standard Check)
+   Slogan: "Satu langkah menuju top global. Butuh mekanik mumpuni dan organ tubuh yang responsif."
+   
+   Paket ini lebih lengkap dan mendalam. Selain memeriksa organ dasar, paket ini 
+   mulai memantau fungsi organ dalam seperti hati, ginjal secara spesifik, dan 
+   profil lemak yang lebih detail. Cocok untuk mereka yang memiliki aktivitas 
+   tinggi atau sering begadang.
+   
+   Isi Pemeriksaan:
+   • Semua isi di Paket EPIC ditambah dengan:
+   • Profil Lemak Lengkap: 
+     Kolesterol Total, HDL, LDL, dan Trigliserisda (untuk memantau risiko 
+     stroke/jantung akibat keseringan makan gorengan saat mabar).
+   • Fungsi Ginjal Lengkap: Ureum, Kreatinin, dan Asam Urat.
+   • Fungsi Hati (Liver): SGOT dan SGPT (penting untuk yang sering begadang push rank).
+   • Pemeriksaan Penunjang:
+     - EKG (Elektrokardiografi): Rekam jantung dasar untuk melihat kelistrikan jantung.
+     - Rontgen Dada (Thorax): Melihat kondisi paru-paru dan ukuran jantung.
+   • Konsultasi Dokter: Dokter Umum + Konsultasi Gizi Dasar.
+
+--------------------------------------------------------------------------------
+
+3. Paket MYTHIC (Advanced & Comprehensive Check)
+   Slogan: "Kesehatan Glory, Mekanik Sempurna. Perlindungan total luar dan dalam."
+   
+   Ini adalah paket paling premium dan komprehensif. Pemeriksaannya menyeluruh 
+   (eksekutif) untuk mendeteksi dini penyakit kronis, memeriksa fungsi jantung 
+   saat bekerja berat, serta fungsi metabolisme tubuh secara total.
+   
+   Isi Pemeriksaan:
+   • Semua isi di Paket LEGEND ditambah dengan:
+   • Skrining Diabetes Lanjutan: HbA1c (melihat rata-rata gula darah 3 bulan terakhir).
+   • Fungsi Hati Lengkap tambahan: Bilirubin Total, Protein Total, Albumen, Globulin.
+   • Pemeriksaan Penunjang Advanced:
+     - Treadmill Test: Menguji ketahanan jantung saat melakukan aktivitas fisik berat.
+     - USG Abdomen (Perut): Melihat kondisi hati, empedu, pankreas, limpa, dan ginjal 
+       secara visual (mendeteksi fatty liver atau batu ginjal).
+     - Pemeriksaan Mata (Visus & Tonometri): Skrining kesehatan mata (penting banget 
+       buat gamer yang matanya sering terpapar blue light).
+   • Konsultasi Dokter: Dokter Spesialis Penyakit Dalam (Sp.PD).
+
+================================================================================
+`)
+}
+
+func PilihPaket(dataPasien *[NMAX]Pasien, jumlahPasien int) {
+	var nama string
+	var pilihan int
+	var i int
+	var ketemu bool
+
+	fmt.Print("\nMasukkan nama pasien yang akan memilih paket: ")
+	fmt.Scan(&nama)
+
+	ketemu = false
+	i = 0
+
+	for i < jumlahPasien && !ketemu {
+		if dataPasien[i].nama == nama {
+			ketemu = true
+			TampilkanDaftarPaket()
+
+			fmt.Printf("\n--- PILIH PAKET UNTUK PASIEN: %s ---\n", dataPasien[i].nama)
+			fmt.Print("Masukkan pilihan paket Anda (1/2/3): ")
+			fmt.Scan(&pilihan)
+
+			switch pilihan {
+			case 1:
+				dataPasien[i].paket = "1" // Menyimpan "1" untuk EPIC
+				fmt.Printf("=> Pendaftaran berhasil! Pasien %s didaftarkan ke Paket EPIC.\n", dataPasien[i].nama)
+			case 2:
+				dataPasien[i].paket = "2" // Menyimpan "2" untuk LEGEND
+				fmt.Printf("=> Pendaftaran berhasil! Pasien %s didaftarkan ke Paket LEGEND.\n", dataPasien[i].nama)
+			case 3:
+				dataPasien[i].paket = "3" // Menyimpan "3" untuk MYTHIC
+				fmt.Printf("=> Pendaftaran berhasil! Pasien %s didaftarkan ke Paket MYTHIC.\n", dataPasien[i].nama)
+			default:
+				fmt.Println("Pilihan paket tidak tersedia. Silakan masukkan angka 1, 2, atau 3.")
+			}
+		}
+		i++
+	}
+
+	if !ketemu {
+		fmt.Println("Maaf, data pasien tidak ditemukan. Silakan daftarkan di Menu Kelola Data Pasien terlebih dahulu.")
+	}
+}
+
 func InputDataCheckup(dataHasil *[NMAX]Hasil, jumlahHasil *int, dataPasien [NMAX]Pasien, jumlahPasien int) {
-	var idTarget string
-	var posisi Pasien
+	var namaTarget string
+	var i int
+	var ketemu bool
+	var pasienDipilih Pasien
+	var namaPaket string
 
-	fmt.Print("Masukkan nama Pasien yang akan di-checkup: ")
-	fmt.Scan(&idTarget)
+	fmt.Print("\nMasukkan nama Pasien yang akan di-checkup: ")
+	fmt.Scan(&namaTarget)
 
-	posisi = CariDataPasien(dataPasien, jumlahPasien, idTarget)
+	ketemu = false
+	i = 0
 
-	if posisi.id != -1 {
-		// Basis Kasus / Kasus Berhenti: Jika ID ketemu, jalankan input data
+	for i < jumlahPasien && !ketemu {
+		if dataPasien[i].nama == namaTarget {
+			ketemu = true
+			pasienDipilih = dataPasien[i]
+		}
+		i++
+	}
+
+	if ketemu {
+		if pasienDipilih.paket == "" {
+			fmt.Println("\n[!] Peringatan: Pasien ini belum memilih paket MCU!")
+			fmt.Println("Silakan pilih paket terlebih dahulu di Menu Kelola Data Check-up (Opsi 1).")
+			return
+		}
+
 		if *jumlahHasil < NMAX {
-			dataHasil[*jumlahHasil].namaPasien = idTarget
-			fmt.Print("Masukkan Tanggal (DD-MM-YYYY): ")
+			dataHasil[*jumlahHasil].namaPasien = pasienDipilih.nama
+			dataHasil[*jumlahHasil].paket = pasienDipilih.paket
+
+			// Konversi kode angka ke teks nama paket buat judul/header
+			if pasienDipilih.paket == "1" {
+				namaPaket = "EPIC"
+			} else if pasienDipilih.paket == "2" {
+				namaPaket = "LEGEND"
+			} else if pasienDipilih.paket == "3" {
+				namaPaket = "MYTHIC"
+			}
+
+			fmt.Printf("\n==================================================")
+			fmt.Printf("\n  INPUT HASIL MCU - PASIEN: %s [Paket %s]  ", pasienDipilih.nama, namaPaket)
+			fmt.Printf("\n==================================================\n")
+
+			fmt.Print("Masukkan Tanggal Periksa (DD-MM-YYYY): ")
 			fmt.Scan(&dataHasil[*jumlahHasil].tanggal)
-			fmt.Print("Masukkan Tekanan Darah: ")
-			fmt.Scan(&dataHasil[*jumlahHasil].tekanan)
-			fmt.Print("Masukkan Gula Darah: ")
-			fmt.Scan(&dataHasil[*jumlahHasil].gula)
-			fmt.Print("Masukkan Kolesterol: ")
-			fmt.Scan(&dataHasil[*jumlahHasil].kolesterol)
+
+			// Kondisi 1: Berlaku untuk semua paket (1, 2, atau 3)
+			if pasienDipilih.paket == "1" || pasienDipilih.paket == "2" || pasienDipilih.paket == "3" {
+				fmt.Println("\n[ Form Pemeriksaan Fisik & Lab Dasar - EPIC ]")
+				fmt.Print("-> Tekanan Darah (Tensi) : ")
+				fmt.Scan(&dataHasil[*jumlahHasil].tekanan)
+				fmt.Print("-> Denyut Nadi / menit   : ")
+				fmt.Scan(&dataHasil[*jumlahHasil].nadi)
+				fmt.Print("-> Suhu Tubuh (Celsius)  : ")
+				fmt.Scan(&dataHasil[*jumlahHasil].suhu)
+				fmt.Print("-> Gula Darah Puasa      : ")
+				fmt.Scan(&dataHasil[*jumlahHasil].gula)
+				fmt.Print("-> Kolesterol Total      : ")
+				fmt.Scan(&dataHasil[*jumlahHasil].kolesterol)
+			}
+
+			// Kondisi 2: Tambahan untuk Legend dan Mythic (2 atau 3)
+			if pasienDipilih.paket == "2" || pasienDipilih.paket == "3" {
+				fmt.Println("\n[ Form Organ Dalam & Jantung - LEGEND ]")
+				fmt.Print("-> Kolesterol HDL        : ")
+				fmt.Scan(&dataHasil[*jumlahHasil].hdl)
+				fmt.Print("-> Kolesterol LDL        : ")
+				fmt.Scan(&dataHasil[*jumlahHasil].ldl)
+				fmt.Print("-> Trigliserida          : ")
+				fmt.Scan(&dataHasil[*jumlahHasil].trigliserida)
+				fmt.Print("-> Asam Urat             : ")
+				fmt.Scan(&dataHasil[*jumlahHasil].asamUrat)
+				fmt.Print("-> Hasil EKG Jantung     : ")
+				fmt.Scan(&dataHasil[*jumlahHasil].ekg)
+			}
+
+			// Kondisi 3: Khusus paket Mythic (3)
+			if pasienDipilih.paket == "3" {
+				fmt.Println("\n[ Form Advanced Executive - MYTHIC ]")
+				fmt.Print("-> HbA1c (Rata-rata Gula): ")
+				fmt.Scan(&dataHasil[*jumlahHasil].hba1c)
+				fmt.Print("-> Hasil USG Abdomen     : ")
+				fmt.Scan(&dataHasil[*jumlahHasil].usgPerut)
+				fmt.Print("-> Kondisi Mata Gamer    : ")
+				fmt.Scan(&dataHasil[*jumlahHasil].kondisiMata)
+			}
 
 			if dataHasil[*jumlahHasil].gula > 140 || dataHasil[*jumlahHasil].kolesterol > 200 {
-				dataHasil[*jumlahHasil].status = "Perlu Tindakan"
+				dataHasil[*jumlahHasil].status = "Perlu Tindakan (Gak Aman, Kurangi Begadang!)"
 			} else {
-				dataHasil[*jumlahHasil].status = "Normal"
+				dataHasil[*jumlahHasil].status = "Normal (Mekanik Aman)"
 			}
 
 			*jumlahHasil++
-			fmt.Println("Hasil check-up berhasil disimpan.")
+			fmt.Println("\n[+] Hasil check-up komprehensif berhasil disimpan ke sistem.")
 		} else {
-			fmt.Println("Data hasil sudah penuh.")
+			fmt.Println("\n[!] Error: Kapasitas memori data hasil sudah penuh.")
 		}
 	} else {
-		// REKURSIF: Jika tidak ketemu, panggil fungsi ini lagi dari awal
-		fmt.Println("ID Pasien tidak ditemukan! Silakan coba lagi.")
+		fmt.Println("\n[!] Nama Pasien tidak terdaftar di sistem! Silakan coba lagi.")
 		InputDataCheckup(dataHasil, jumlahHasil, dataPasien, jumlahPasien)
 	}
 }
 
-func CetakHasilCheckup(dataHasil [NMAX]Hasil, jumlah int, idx int) {
-	// Basis kasus: Berhenti jika indeks sudah mencapai jumlah data
-	if idx >= jumlah {
-		return
+func CetakHasilCheckup(h Hasil) {
+	var namaPaket string
+
+	// Terjemahin lagi kode angka ke teks pas mau dicetak ke lembar kertas hasil
+	if h.paket == "1" {
+		namaPaket = "EPIC"
+	} else if h.paket == "2" {
+		namaPaket = "LEGEND"
+	} else if h.paket == "3" {
+		namaPaket = "MYTHIC"
 	}
 
-	// Mencetak data secara sekuensial
-	fmt.Printf("\n--- Hasil Check-up ke-%d ---\n", idx+1)
-	fmt.Printf("Nama Pasien  : %s\n", dataHasil[idx].namaPasien)
-	fmt.Printf("Tanggal    : %s\n", dataHasil[idx].tanggal)
-	fmt.Printf("Tensi      : %d\n", dataHasil[idx].tekanan)
-	fmt.Printf("Gula Darah : %d\n", dataHasil[idx].gula)
-	fmt.Printf("Kolesterol : %d\n", dataHasil[idx].kolesterol)
-	fmt.Printf("Status     : %s\n", dataHasil[idx].status)
+	fmt.Printf("\n==================================================\n")
+	fmt.Printf("               HASIL MEDICAL CHECK-UP             \n")
+	fmt.Printf("==================================================\n")
+	fmt.Printf("Nama Pasien     : %s\n", h.namaPasien)
+	fmt.Printf("Tanggal Periksa : %s\n", h.tanggal)
+	fmt.Printf("Paket MCU       : %s\n", namaPaket) // Mencetak string nama paketnya
+	fmt.Printf("Status Akhir    : %s\n", h.status)
+	fmt.Printf("--------------------------------------------------\n")
 
-	// Panggil fungsi ini lagi untuk indeks selanjutnya
-	CetakHasilCheckup(dataHasil, jumlah, idx+1)
+	if h.paket == "1" || h.paket == "2" || h.paket == "3" {
+		fmt.Println("[ Hasil Pemeriksaan Fisik & Lab Dasar - EPIC ]")
+		fmt.Printf("-> Tekanan Darah (Tensi) : %d mmHg\n", h.tekanan)
+		fmt.Printf("-> Denyut Nadi           : %d /menit\n", h.nadi)
+		fmt.Printf("-> Suhu Tubuh            : %.1f Celcius\n", h.suhu)
+		fmt.Printf("-> Gula Darah Puasa      : %d mg/dL\n", h.gula)
+		fmt.Printf("-> Kolesterol Total      : %d mg/dL\n", h.kolesterol)
+	}
+
+	if h.paket == "2" || h.paket == "3" {
+		fmt.Println("\n[ Hasil Organ Dalam & Jantung - LEGEND ]")
+		fmt.Printf("-> Kolesterol HDL        : %d mg/dL\n", h.hdl)
+		fmt.Printf("-> Kolesterol LDL        : %d mg/dL\n", h.ldl)
+		fmt.Printf("-> Trigliserida          : %d mg/dL\n", h.trigliserida)
+		fmt.Printf("-> Asam Urat             : %.1f mg/dL\n", h.asamUrat)
+		fmt.Printf("-> Hasil EKG Jantung     : %s\n", h.ekg)
+	}
+
+	if h.paket == "3" {
+		fmt.Println("\n[ Hasil Advanced Executive - MYTHIC ]")
+		fmt.Printf("-> HbA1c (Rata-rata Gula): %.1f %%\n", h.hba1c)
+		fmt.Printf("-> Hasil USG Abdomen     : %s\n", h.usgPerut)
+		fmt.Printf("-> Kondisi Mata Gamer    : %s\n", h.kondisiMata)
+	}
+	fmt.Printf("==================================================\n")
 }
 
 func main() {
@@ -214,9 +440,8 @@ func main() {
 	for jalan {
 		fmt.Println("\n=== SISTEM MEDICAL CHECK-UP ===")
 		fmt.Println("1. Kelola Data Pasien")
-		fmt.Println("2. Tambah Data Check-up")
-		fmt.Println("3. Cari Data Check-up")
-		fmt.Println("4. Keluar")
+		fmt.Println("2. Checkup & Riwayat Pasien")
+		fmt.Println("3. Keluar")
 		fmt.Print("Pilih menu: ")
 
 		fmt.Scan(&menu)
@@ -276,44 +501,70 @@ func main() {
 				}
 			}
 		case 2:
-			InputDataCheckup(&dataHasil, &jumlahHasil, dataPasien, jumlahPasien)
-		case 3:
-			// 1. Minta input nama Pasien
-			fmt.Print("Masukkan nama Pasien untuk melihat riwayat check-up: ")
-			fmt.Scan(&namaCari)
+			var subJalanCheckup bool = true
+			var menuCheckup int
+			// === SUB-MENU CHECK-UP ===
+			for subJalanCheckup {
+				fmt.Println("\n=== MENU KELOLA DATA CHECK-UP ===")
+				fmt.Println("1. Pilih Paket MCU (Baru)")
+				fmt.Println("2. Tambah Hasil Check-up")
+				fmt.Println("3. Cari Riwayat Check-up")
+				fmt.Println("4. Kembali ke Menu Utama")
+				fmt.Print("Pilih sub-menu: ")
+				fmt.Scan(&menuCheckup)
 
-			// 2. URUTKAN DATA PASIEN (Wajib sebelum Binary Search)
-			InsertionSortAscendPasien(&dataPasien, jumlahPasien)
+				switch menuCheckup {
+				case 1:
+					TampilkanDaftarPaket()                // 1. Panggil teks daftarnya dulu agar user bisa baca
+					PilihPaket(&dataPasien, jumlahPasien) // 2. Langsung minta eksekusi pilihannya
+				case 2:
+					InputDataCheckup(&dataHasil, &jumlahHasil, dataPasien, jumlahPasien)
+					// ... (case 3 dan 4 tetap sama seperti sebelumnya)
+				case 3:
+					// 1. Minta input nama Pasien
+					fmt.Print("Masukkan nama Pasien untuk melihat riwayat check-up: ")
+					fmt.Scan(&namaCari)
 
-			// 3. CARI PASIEN MENGGUNAKAN BINARY SEARCH
-			var indeksPasien int = BinarySearchPasien(dataPasien, jumlahPasien, namaCari)
+					// 2. URUTKAN DATA PASIEN (Wajib sebelum Binary Search)
+					InsertionSortAscendPasien(&dataPasien, jumlahPasien)
 
-			// 4. Cek apakah hasil Binary Search menemukan pasien (bukan -1)
-			if indeksPasien != -1 {
-				// Ambil data pasien dari hasil indeks binary search
-				pasienDitemukan = dataPasien[indeksPasien]
-				fmt.Printf("\n--- RIWAYAT CHECK-UP PASIEN: %s (ID: %d) ---\n", pasienDitemukan.nama, pasienDitemukan.id)
+					// 3. CARI PASIEN MENGGUNAKAN BINARY SEARCH
+					var indeksPasien int = BinarySearchPasien(dataPasien, jumlahPasien, namaCari)
 
-				var adaRiwayat bool = false
-				var i int = 0
+					// 4. Cek apakah hasil Binary Search menemukan pasien (bukan -1)
+					if indeksPasien != -1 {
+						// Ambil data pasien dari hasil indeks binary search
+						pasienDitemukan = dataPasien[indeksPasien]
+						fmt.Printf("\n--- RIWAYAT CHECK-UP PASIEN: %s (ID: %d) ---\n", pasienDitemukan.nama, pasienDitemukan.id)
 
-				// 5. Tampilkan semua riwayat check-up dari dataHasil
-				for i < jumlahHasil {
-					if dataHasil[i].namaPasien == namaCari {
-						fmt.Printf("- Tanggal: %s | Tensi: %d | Gula: %d | Kolesterol: %d | Status: %s\n",
-							dataHasil[i].tanggal, dataHasil[i].tekanan, dataHasil[i].gula, dataHasil[i].kolesterol, dataHasil[i].status)
-						adaRiwayat = true
+						var adaRiwayat bool = false
+						var i int = 0
+
+						// 5. Tampilkan semua riwayat check-up dari dataHasil
+						for i < jumlahHasil {
+							if dataHasil[i].namaPasien == namaCari {
+								fmt.Printf("- Tanggal: %s | Tensi: %d | Gula: %d | Kolesterol: %d | Status: %s\n",
+									dataHasil[i].tanggal, dataHasil[i].tekanan, dataHasil[i].gula, dataHasil[i].kolesterol, dataHasil[i].status)
+								adaRiwayat = true
+							}
+							i++
+						}
+
+						if !adaRiwayat {
+							fmt.Println("Pasien ini belum memiliki riwayat pemeriksaan.")
+						}
+					} else {
+						fmt.Println("Maaf, data pasien dengan ID tersebut tidak ditemukan.")
 					}
-					i++
+				case 4:
+					fmt.Println("Kembali ke Menu Utama...")
+					subJalanCheckup = false // Mematikan perulangan check-up agar keluar ke main switch
+				default:
+					fmt.Println("Pilihan sub-menu tidak tersedia.")
 				}
-
-				if !adaRiwayat {
-					fmt.Println("Pasien ini belum memiliki riwayat pemeriksaan.")
-				}
-			} else {
-				fmt.Println("Maaf, data pasien dengan ID tersebut tidak ditemukan.")
 			}
-		case 4:
+
+		case 3:
 			fmt.Println("Terima kasih!")
 			jalan = false // Mengubah nilai menjadi false agar perulangan for berhenti
 		default:
