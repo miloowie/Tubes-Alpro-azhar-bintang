@@ -112,20 +112,37 @@ func BinarySearchPasien(data [NMAX]Pasien, jumlah int, namaCari string) int {
 		if data[tengah].nama == namaCari {
 			return tengah // Mengembalikan INDEKS/POSISI data jika ditemukan
 		} else if data[tengah].nama < namaCari {
-			kiri = tengah + 1 // Geser pencarian ke kanan
+			kanan = tengah - 1 // Geser ke kiri karena huruf besar (Z, Y, X...) berada di indeks awal
 		} else {
-			kanan = tengah - 1 // Geser pencarian ke kiri
+			kiri = tengah + 1 // Geser ke kanan karena huruf kecil (C, B, A...) berada di indeks akhir
 		}
 	}
 	return -1 // Mengembalikan -1 jika nama tidak ditemukan
 }
 
-func InsertionSortAscendPasien(data *[NMAX]Pasien, jumlah int) {
+func InsertionSortAscendPasienByID(data *[NMAX]Pasien, jumlah int) {
 	var i, j int
+	var key Pasien // Deklarasi eksplisit var
+
 	for i = 1; i < jumlah; i++ {
-		key := data[i]
+		key = data[i] // Memakai assignment biasa
 		j = i - 1
 		for j >= 0 && data[j].id > key.id {
+			data[j+1] = data[j]
+			j = j - 1
+		}
+		data[j+1] = key
+	}
+}
+
+func InsertionSortDescendPasienByNama(data *[NMAX]Pasien, jumlah int) {
+	var i, j int
+	var key Pasien // Deklarasi eksplisit tanpa :=
+
+	for i = 1; i < jumlah; i++ {
+		key = data[i] // Menggunakan assignment biasa
+		j = i - 1
+		for j >= 0 && data[j].nama < key.nama {
 			data[j+1] = data[j]
 			j = j - 1
 		}
@@ -169,7 +186,7 @@ func TampilkanDaftarPaket() {
                          DAFTAR PAKET MEDICAL CHECK-UP                          
 ================================================================================
 
-1. Paket EPIC (Basic & Essential Check)
+1. Paket EPIC (Basic & Essential Check) - Rp 500.000
    Slogan: "Pemeriksaan dasar, biar gak beban tim dan gak nyangkut di badak selamanya."
    
    Paket ini ditujukan untuk pemeriksaan kesehatan dasar (skrining awal) guna 
@@ -188,7 +205,7 @@ func TampilkanDaftarPaket() {
 
 --------------------------------------------------------------------------------
 
-2. Paket LEGEND (Intermediate & Standard Check)
+2. Paket LEGEND (Intermediate & Standard Check) - Rp 1.000.000
    Slogan: "Satu langkah menuju top global. Butuh mekanik mumpuni dan organ tubuh yang responsif."
    
    Paket ini lebih lengkap dan mendalam. Selain memeriksa organ dasar, paket ini 
@@ -210,7 +227,7 @@ func TampilkanDaftarPaket() {
 
 --------------------------------------------------------------------------------
 
-3. Paket MYTHIC (Advanced & Comprehensive Check)
+3. Paket MYTHIC (Advanced & Comprehensive Check) - Rp 2.000.000
    Slogan: "Kesehatan Glory, Mekanik Sempurna. Perlindungan total luar dan dalam."
    
    Ini adalah paket paling premium dan komprehensif. Pemeriksaannya menyeluruh 
@@ -430,6 +447,40 @@ func CetakHasilCheckup(h Hasil) {
 	fmt.Printf("==================================================\n")
 }
 
+func Pemasukan(dataPasien [NMAX]Pasien, jumlahPasien int) {
+	var i int
+	var countEpic, countLegend, countMythic int
+	var totalEpic, totalLegend, totalMythic, grandTotal int
+
+	// Melakukan looping untuk menghitung pilihan paket dari setiap pasien
+	for i = 0; i < jumlahPasien; i++ {
+		if dataPasien[i].paket == "1" {
+			countEpic++
+		} else if dataPasien[i].paket == "2" {
+			countLegend++
+		} else if dataPasien[i].paket == "3" {
+			countMythic++
+		}
+	}
+
+	// Menghitung nominal uang berdasarkan harga paket
+	totalEpic = countEpic * 500000
+	totalLegend = countLegend * 1000000
+	totalMythic = countMythic * 2000000
+	grandTotal = totalEpic + totalLegend + totalMythic
+
+	// Menampilkan laporan ke layar
+	fmt.Println("\n==================================================")
+	fmt.Println("               LAPORAN TOTAL PEMASUKAN            ")
+	fmt.Println("==================================================")
+	fmt.Printf("1. Paket EPIC   : %2d pasien x Rp   500.000 = Rp %d\n", countEpic, totalEpic)
+	fmt.Printf("2. Paket LEGEND : %2d pasien x Rp 1.000.000 = Rp %d\n", countLegend, totalLegend)
+	fmt.Printf("3. Paket MYTHIC : %2d pasien x Rp 2.000.000 = Rp %d\n", countMythic, totalMythic)
+	fmt.Println("--------------------------------------------------")
+	fmt.Printf("GRAND TOTAL PEMASUKAN                      = Rp %d\n", grandTotal)
+	fmt.Println("==================================================")
+}
+
 func main() {
 	var menu int
 	var jalan bool = true // Variabel penanda untuk perulangan
@@ -441,7 +492,8 @@ func main() {
 		fmt.Println("\n=== SISTEM MEDICAL CHECK-UP ===")
 		fmt.Println("1. Kelola Data Pasien")
 		fmt.Println("2. Checkup & Riwayat Pasien")
-		fmt.Println("3. Keluar")
+		fmt.Println("3. Laporan Pemasukan")
+		fmt.Println("4. Keluar")
 		fmt.Print("Pilih menu: ")
 
 		fmt.Scan(&menu)
@@ -470,24 +522,29 @@ func main() {
 					if jumlahPasien == 0 {
 						fmt.Println("Belum ada data pasien.")
 					} else {
-						InsertionSortAscendPasien(&dataPasien, jumlahPasien)
+						InsertionSortAscendPasienByID(&dataPasien, jumlahPasien)
 						CetakDataPasien(dataPasien, jumlahPasien)
 					}
 				case 3:
-					// 1. Minta input nama yang mau dicari
-					fmt.Print("Masukkan nama Pasien yang dicari: ")
+					fmt.Print("Masukkan nama Pasien yang ingin dicari: ")
 					fmt.Scan(&namaCari)
 
-					// 2. Simpan hasil kembalian fungsinya ke dalam variabel
-					// Catatan: Angka 0 di belakang dihapus karena kita sudah memakai versi for loop
-					pasienDitemukan = CariDataPasien(dataPasien, jumlahPasien, namaCari)
+					// 1. Urutkan data pasien secara descending sebelum Binary Search
+					InsertionSortDescendPasienByNama(&dataPasien, jumlahPasien)
 
-					// 3. Cek apakah ID-nya bukan -1 (artinya ketemu)
-					if pasienDitemukan.id != -1 {
-						fmt.Println("\n--- DATA DITEMUKAN ---")
-						fmt.Printf("ID   : %d\n", pasienDitemukan.id)
-						fmt.Printf("Nama : %s\n", pasienDitemukan.nama)
-						fmt.Printf("Umur : %d\n", pasienDitemukan.umur)
+					// 2. Cari pasien menggunakan Binary Search (Tanpa :=)
+					var indeksPasien int
+					indeksPasien = BinarySearchPasien(dataPasien, jumlahPasien, namaCari)
+
+					if indeksPasien != -1 {
+						pasienDitemukan = dataPasien[indeksPasien]
+						fmt.Println("\n==================================================")
+						fmt.Println("               DATA PROFIL PASIEN                 ")
+						fmt.Println("==================================================")
+						fmt.Printf("ID Pasien   : %d\n", pasienDitemukan.id)
+						fmt.Printf("Nama        : %s\n", pasienDitemukan.nama)
+						fmt.Printf("Umur        : %d Tahun\n", pasienDitemukan.umur)
+						fmt.Println("==================================================")
 					} else {
 						fmt.Println("Maaf, data pasien dengan nama tersebut tidak ditemukan.")
 					}
@@ -526,10 +583,11 @@ func main() {
 					fmt.Scan(&namaCari)
 
 					// 2. URUTKAN DATA PASIEN (Wajib sebelum Binary Search)
-					InsertionSortAscendPasien(&dataPasien, jumlahPasien)
+					InsertionSortDescendPasienByNama(&dataPasien, jumlahPasien)
 
-					// 3. CARI PASIEN MENGGUNAKAN BINARY SEARCH
-					var indeksPasien int = BinarySearchPasien(dataPasien, jumlahPasien, namaCari)
+					// 3. CARI PASIEN MENGGUNAKAN BINARY SEARCH (Tanpa :=)
+					var indeksPasien int
+					indeksPasien = BinarySearchPasien(dataPasien, jumlahPasien, namaCari)
 
 					// 4. Cek apakah hasil Binary Search menemukan pasien (bukan -1)
 					if indeksPasien != -1 {
@@ -543,8 +601,9 @@ func main() {
 						// 5. Tampilkan semua riwayat check-up dari dataHasil
 						for i < jumlahHasil {
 							if dataHasil[i].namaPasien == namaCari {
-								fmt.Printf("- Tanggal: %s | Tensi: %d | Gula: %d | Kolesterol: %d | Status: %s\n",
-									dataHasil[i].tanggal, dataHasil[i].tekanan, dataHasil[i].gula, dataHasil[i].kolesterol, dataHasil[i].status)
+								// DI SINI PERUBAHAN UTAMANYA:
+								// Memanggil fungsi cetak lengkap yang otomatis menyesuaikan paket Legend & Mythic
+								CetakHasilCheckup(dataHasil[i])
 								adaRiwayat = true
 							}
 							i++
@@ -554,7 +613,7 @@ func main() {
 							fmt.Println("Pasien ini belum memiliki riwayat pemeriksaan.")
 						}
 					} else {
-						fmt.Println("Maaf, data pasien dengan ID tersebut tidak ditemukan.")
+						fmt.Println("Maaf, data pasien dengan nama tersebut tidak ditemukan.")
 					}
 				case 4:
 					fmt.Println("Kembali ke Menu Utama...")
@@ -563,8 +622,9 @@ func main() {
 					fmt.Println("Pilihan sub-menu tidak tersedia.")
 				}
 			}
-
 		case 3:
+			Pemasukan(dataPasien, jumlahPasien)
+		case 4:
 			fmt.Println("Terima kasih!")
 			jalan = false // Mengubah nilai menjadi false agar perulangan for berhenti
 		default:
