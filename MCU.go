@@ -9,6 +9,7 @@ type Pasien struct {
 	nama  string
 	umur  int
 	paket string
+}
 
 var dataPasien [NMAX]Pasien
 var jumlahPasien int = 0
@@ -23,23 +24,23 @@ var dataPaket [NMAX]Paket
 var jumlahPaket int = 0
 
 type Hasil struct {
-	namaPasien string
-	paket      string
-	tanggal    string
-	status     string
-	tekanan    int
-	nadi       int
-	suhu       float64
-	gula       int
-	kolesterol int
+	namaPasien   string
+	paket        string
+	tanggal      string
+	status       string
+	tekanan      int
+	nadi         int
+	suhu         float64
+	gula         int
+	kolesterol   int
 	hdl          int
 	ldl          int
 	trigliserida int
 	asamUrat     float64
-	ekg          string 
-	hba1c       float64
-	usgPerut    string 
-	kondisiMata string 
+	ekg          string
+	hba1c        float64
+	usgPerut     string
+	kondisiMata  string
 }
 
 var dataHasil [NMAX]Hasil
@@ -59,7 +60,7 @@ func InputDataPasien(dataPasien *[NMAX]Pasien, jumlahPasien *int) {
 			*jumlahPasien++
 		} else {
 			fmt.Println("Peringatan, kapasitas data pasien sudah penuh! Sisa data tidak dapat dimasukkan.")
-			break 
+			break
 		}
 	}
 	fmt.Println("Proses penambahan data pasien selesai.")
@@ -94,7 +95,7 @@ func BinarySearchPasien(data [NMAX]Pasien, jumlah int, namaCari string) int {
 		if data[tengah].nama == namaCari {
 			return tengah
 		} else if data[tengah].nama < namaCari {
-			kanan = tengah - 1 
+			kanan = tengah - 1
 		} else {
 			kiri = tengah + 1
 		}
@@ -456,7 +457,7 @@ func Pemasukan(dataPasien [NMAX]Pasien, jumlahPasien int) {
 
 func main() {
 	var menu int
-	var jalan bool = true 
+	var jalan bool = true
 	var namaCari string
 	var pasienDitemukan Pasien
 
@@ -471,7 +472,7 @@ func main() {
 		fmt.Scan(&menu)
 
 		switch menu {
-		case 1: 
+		case 1:
 			var subJalan bool = true
 			var menuPasien int
 
@@ -538,7 +539,7 @@ func main() {
 
 				switch menuCheckup {
 				case 1:
-					TampilkanDaftarPaket()                
+					TampilkanDaftarPaket()
 					PilihPaket(&dataPasien, jumlahPasien)
 				case 2:
 					InputDataCheckup(&dataHasil, &jumlahHasil, dataPasien, jumlahPasien)
