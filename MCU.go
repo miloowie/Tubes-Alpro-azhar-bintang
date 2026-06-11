@@ -56,15 +56,14 @@ var jumlahHasil int = 0
 func InputDataPasien(dataPasien *[NMAX]Pasien, jumlahPasien *int) {
 	var jumlahInput, i int
 	var isPenuh bool
-
 	isPenuh = false
 
 	fmt.Print("Masukkan jumlah pasien yang ingin diinput: ")
 	fmt.Scan(&jumlahInput)
 
 	fmt.Println("\nMasukkan data dengan format: ID Nama Umur (pisahkan dengan spasi)")
-
-	for i = 0; i < jumlahInput; i++ {
+	fmt.Println("Contoh: 1001 Budi 67")
+	for i = 0; i < jumlahInput && !isPenuh; i++ {
 		if *jumlahPasien < NMAX {
 			fmt.Scan(&dataPasien[*jumlahPasien].id, &dataPasien[*jumlahPasien].nama, &dataPasien[*jumlahPasien].umur)
 			*jumlahPasien++
@@ -73,7 +72,7 @@ func InputDataPasien(dataPasien *[NMAX]Pasien, jumlahPasien *int) {
 			isPenuh = true
 		}
 	}
-	fmt.Println("Proses penambahan data pasien selesai.")
+	fmt.Println("Data berhasil ditambahkan.")
 }
 
 func CetakDataPasien(dataPasien [NMAX]Pasien, jumlah int) {
@@ -160,14 +159,10 @@ func HapusDataPasien(dataPasien *[NMAX]Pasien, jumlahPasien *int) {
 		if dataPasien[i].nama == namaTarget {
 			ketemu = true
 
-			// Geser semua data di kanannya ke arah kiri
 			for j = i; j < *jumlahPasien-1; j++ {
 				dataPasien[j] = dataPasien[j+1]
 			}
-
-			// Kurangi total jumlah pasien karena ada 1 yang dihapus
 			*jumlahPasien--
-
 			fmt.Println("Data pasien berhasil dihapus dari sistem!")
 			break
 		}
@@ -185,7 +180,7 @@ func TampilkanDaftarPaket() {
 ================================================================================
 
 1. Paket EPIC (Basic & Essential Check) - Rp 500.000
-   Slogan: "Pemeriksaan dasar, biar gak beban tim dan gak nyangkut di badak selamanya."
+   "Pemeriksaan dasar, biar gak beban tim dan gak nyangkut di badak selamanya."
    
    Paket ini ditujukan untuk pemeriksaan kesehatan dasar (skrining awal) guna 
    memastikan fungsi organ vital dasar berjalan dengan baik. Cocok untuk usia 
@@ -204,7 +199,7 @@ func TampilkanDaftarPaket() {
 --------------------------------------------------------------------------------
 
 2. Paket LEGEND (Intermediate & Standard Check) - Rp 1.000.000
-   Slogan: "Satu langkah menuju top global. Butuh mekanik mumpuni dan organ tubuh yang responsif."
+   "Satu langkah menuju top global. Butuh mekanik mumpuni dan organ tubuh yang responsif."
    
    Paket ini lebih lengkap dan mendalam. Selain memeriksa organ dasar, paket ini 
    mulai memantau fungsi organ dalam seperti hati, ginjal secara spesifik, dan 
@@ -226,7 +221,7 @@ func TampilkanDaftarPaket() {
 --------------------------------------------------------------------------------
 
 3. Paket MYTHIC (Advanced & Comprehensive Check) - Rp 2.000.000
-   Slogan: "Kesehatan Glory, Mekanik Sempurna. Perlindungan total luar dan dalam."
+   "Kesehatan Glory, Mekanik Sempurna. Perlindungan total luar dan dalam."
    
    Ini adalah paket paling premium dan komprehensif. Pemeriksaannya menyeluruh 
    (eksekutif) untuk mendeteksi dini penyakit kronis, memeriksa fungsi jantung 
@@ -635,7 +630,6 @@ func main() {
 
 				switch menuCheckup {
 				case 1:
-					TampilkanDaftarPaket()
 					PilihPaket(&dataPasien, jumlahPasien)
 				case 2:
 					InputDataCheckup(&dataHasil, &jumlahHasil, dataPasien, jumlahPasien)
