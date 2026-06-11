@@ -14,6 +14,13 @@ type Pasien struct {
 var dataPasien [NMAX]Pasien
 var jumlahPasien int = 0
 
+type LaporanPaket struct {
+	nama  string
+	count int
+	harga int
+	total int
+}
+
 type Paket struct {
 	id        int
 	namaPaket string
@@ -74,7 +81,7 @@ func CetakDataPasien(dataPasien [NMAX]Pasien, jumlah int) {
 	fmt.Println()
 }
 
-func CariDataPasien(dataPasien [NMAX]Pasien, jumlah int, namaCari string) Pasien {
+func CariDataPasienSeq(dataPasien [NMAX]Pasien, jumlah int, namaCari string) Pasien {
 	var i int
 	for i = 0; i < jumlah; i++ {
 		if dataPasien[i].nama == namaCari {
@@ -424,10 +431,73 @@ func CetakHasilCheckup(h Hasil) {
 	fmt.Printf("==================================================\n")
 }
 
+func CariRiwayatPerTahun(dataHasil [NMAX]Hasil, jumlahHasil int, dataPasien [NMAX]Pasien, jumlahPasien int) {
+	var tahunCari string
+	var i, j int
+	var namaPaket string
+	var idPasien, usiaPasien int
+	var ketemuPasien bool
+	var adaData bool
+
+	fmt.Print("Masukkan tahun pemeriksaan yang ingin dicari (YYYY): ")
+	fmt.Scan(&tahunCari)
+
+	fmt.Println("\n=======================================================================")
+	fmt.Println("ID  | Nama       | Usia | Paket Yang Dipilih | Tanggal Pemeriksaan")
+	fmt.Println("=======================================================================")
+
+	adaData = false
+
+	for i = 0; i < jumlahHasil; i++ {
+		if len(dataHasil[i].tanggal) == 10 && dataHasil[i].tanggal[6:] == tahunCari {
+			adaData = true
+
+			idPasien = -1
+			usiaPasien = -1
+			ketemuPasien = false
+			j = 0
+
+			for j < jumlahPasien && !ketemuPasien {
+				if dataPasien[j].nama == dataHasil[i].namaPasien {
+					idPasien = dataPasien[j].id
+					usiaPasien = dataPasien[j].umur
+					ketemuPasien = true // Mengubah boolean agar loop berhenti otomatis
+				}
+				j++
+			}
+
+			// Konversi kode angka paket ke teks nama paket untuk tampilan tabel
+			if dataHasil[i].paket == "1" {
+				namaPaket = "EPIC"
+			} else if dataHasil[i].paket == "2" {
+				namaPaket = "LEGEND"
+			} else if dataHasil[i].paket == "3" {
+				namaPaket = "MYTHIC"
+			} else {
+				namaPaket = "Tanpa Paket"
+			}
+
+			// Menampilkan data sesuai format tabel yang kamu minta
+			fmt.Printf("%-3d | %-10s | %-4d | %-18s | %s\n",
+				idPasien,
+				dataHasil[i].namaPasien,
+				usiaPasien,
+				namaPaket,
+				dataHasil[i].tanggal,
+			)
+		}
+	}
+
+	if !adaData {
+		fmt.Println("   Tidak ada riwayat pemeriksaan pada tahun tersebut.")
+	}
+	fmt.Println("=======================================================================")
+}
+
 func Pemasukan(dataPasien [NMAX]Pasien, jumlahPasien int) {
-	var i int
+	var i, j int
 	var countEpic, countLegend, countMythic int
-	var totalEpic, totalLegend, totalMythic, grandTotal int
+	var grandTotal int
 
 	for i = 0; i < jumlahPasien; i++ {
 		if dataPasien[i].paket == "1" {
@@ -439,19 +509,39 @@ func Pemasukan(dataPasien [NMAX]Pasien, jumlahPasien int) {
 		}
 	}
 
-	totalEpic = countEpic * 500000
-	totalLegend = countLegend * 1000000
-	totalMythic = countMythic * 2000000
-	grandTotal = totalEpic + totalLegend + totalMythic
+	var listPaket [3]LaporanPaket
+	listPaket[0] = LaporanPaket{"Paket EPIC  ", countEpic, 500000, countEpic * 500000}
+	listPaket[1] = LaporanPaket{"Paket LEGEND", countLegend, 1000000, countLegend * 1000000}
+	listPaket[2] = LaporanPaket{"Paket MYTHIC", countMythic, 2000000, countMythic * 2000000}
+
+	for i = 0; i < 2; i++ {
+		var maxIdx int = i
+		for j = i + 1; j < 3; j++ {
+			if listPaket[j].count > listPaket[maxIdx].count {
+				maxIdx = j
+			}
+		}
+		var temp LaporanPaket = listPaket[i]
+		listPaket[i] = listPaket[maxIdx]
+		listPaket[maxIdx] = temp
+	}
+
+	grandTotal = listPaket[0].total + listPaket[1].total + listPaket[2].total
 
 	fmt.Println("\n==================================================")
-	fmt.Println("               LAPORAN TOTAL PEMASUKAN            ")
+	fmt.Println("          LAPORAN PEMASUKAN PAKET MCU          ")
 	fmt.Println("==================================================")
-	fmt.Printf("1. Paket EPIC   : %2d pasien x Rp   500.000 = Rp %d\n", countEpic, totalEpic)
-	fmt.Printf("2. Paket LEGEND : %2d pasien x Rp 1.000.000 = Rp %d\n", countLegend, totalLegend)
-	fmt.Printf("3. Paket MYTHIC : %2d pasien x Rp 2.000.000 = Rp %d\n", countMythic, totalMythic)
+	for i = 0; i < 3; i++ {
+		fmt.Printf("%d. %s : %2d pasien x Rp %9d = Rp %d\n",
+			i+1,
+			listPaket[i].nama,
+			listPaket[i].count,
+			listPaket[i].harga,
+			listPaket[i].total,
+		)
+	}
 	fmt.Println("--------------------------------------------------")
-	fmt.Printf("GRAND TOTAL PEMASUKAN                      = Rp %d\n", grandTotal)
+	fmt.Printf("TOTAL PEMASUKAN                      = Rp %d\n", grandTotal)
 	fmt.Println("==================================================")
 }
 
@@ -532,8 +622,9 @@ func main() {
 				fmt.Println("\n=== MENU KELOLA DATA CHECK-UP ===")
 				fmt.Println("1. Pilih Paket MCU (Baru)")
 				fmt.Println("2. Tambah Hasil Check-up")
-				fmt.Println("3. Cari Riwayat Check-up")
-				fmt.Println("4. Kembali ke Menu Utama")
+				fmt.Println("3. Cari Riwayat Check-up Pasien")
+				fmt.Println("4. Cari Riwayat Check-up per Tahun")
+				fmt.Println("5. Kembali ke Menu Utama")
 				fmt.Print("Pilih sub-menu: ")
 				fmt.Scan(&menuCheckup)
 
@@ -547,12 +638,9 @@ func main() {
 					fmt.Print("Masukkan nama Pasien untuk melihat riwayat check-up: ")
 					fmt.Scan(&namaCari)
 
-					InsertionSortDescendPasienByNama(&dataPasien, jumlahPasien)
-					var indeksPasien int
-					indeksPasien = BinarySearchPasien(dataPasien, jumlahPasien, namaCari)
+					pasienDitemukan = CariDataPasienSeq(dataPasien, jumlahPasien, namaCari)
 
-					if indeksPasien != -1 {
-						pasienDitemukan = dataPasien[indeksPasien]
+					if pasienDitemukan.id != -1 {
 						fmt.Printf("\n--- RIWAYAT CHECK-UP PASIEN: %s (ID: %d) ---\n", pasienDitemukan.nama, pasienDitemukan.id)
 
 						var adaRiwayat bool = false
@@ -573,6 +661,8 @@ func main() {
 						fmt.Println("Maaf, data pasien dengan nama tersebut tidak ditemukan.")
 					}
 				case 4:
+					CariRiwayatPerTahun(dataHasil, jumlahHasil, dataPasien, jumlahPasien)
+				case 5:
 					fmt.Println("Kembali ke Menu Utama...")
 					subJalanCheckup = false
 				default:
