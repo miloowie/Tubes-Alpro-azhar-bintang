@@ -8,8 +8,7 @@ type Pasien struct {
 	id    int
 	nama  string
 	umur  int
-	paket string // Menyimpan nama paket yang dipilih pasien (EPIC/LEGEND/MYTHIC)
-}
+	paket string
 
 var dataPasien [NMAX]Pasien
 var jumlahPasien int = 0
@@ -28,25 +27,19 @@ type Hasil struct {
 	paket      string
 	tanggal    string
 	status     string
-
-	// === FIELD PAKET EPIC ===
 	tekanan    int
 	nadi       int
 	suhu       float64
 	gula       int
 	kolesterol int
-
-	// === FIELD TAMBAHAN PAKET LEGEND ===
 	hdl          int
 	ldl          int
 	trigliserida int
 	asamUrat     float64
-	ekg          string // Diisi teks (misal: "Normal" / "Ada Arimia")
-
-	// === FIELD TAMBAHAN PAKET MYTHIC ===
+	ekg          string 
 	hba1c       float64
-	usgPerut    string // Diisi teks (misal: "Aman" / "Fatty Liver")
-	kondisiMata string // Diisi teks (misal: "Silinder" / "Normal")
+	usgPerut    string 
+	kondisiMata string 
 }
 
 var dataHasil [NMAX]Hasil
@@ -55,22 +48,18 @@ var jumlahHasil int = 0
 func InputDataPasien(dataPasien *[NMAX]Pasien, jumlahPasien *int) {
 	var jumlahInput, i int
 
-	// Meminta jumlah data yang ingin dimasukkan
 	fmt.Print("Masukkan jumlah pasien yang ingin diinput: ")
 	fmt.Scan(&jumlahInput)
 
-	// Memberi tahu user format inputannya
 	fmt.Println("\nMasukkan data dengan format: ID Nama Umur (pisahkan dengan spasi)")
 
 	for i = 0; i < jumlahInput; i++ {
-		// Cek apakah array belum penuh
 		if *jumlahPasien < NMAX {
 			fmt.Scan(&dataPasien[*jumlahPasien].id, &dataPasien[*jumlahPasien].nama, &dataPasien[*jumlahPasien].umur)
-
 			*jumlahPasien++
 		} else {
 			fmt.Println("Peringatan, kapasitas data pasien sudah penuh! Sisa data tidak dapat dimasukkan.")
-			break // Keluar dari loop jika array sudah mencapai NMAX
+			break 
 		}
 	}
 	fmt.Println("Proses penambahan data pasien selesai.")
@@ -79,7 +68,6 @@ func InputDataPasien(dataPasien *[NMAX]Pasien, jumlahPasien *int) {
 func CetakDataPasien(dataPasien [NMAX]Pasien, jumlah int) {
 	var i int
 	for i = 0; i < jumlah; i++ {
-		// Mengganti idx menjadi i, dan menghapus " " di akhir
 		fmt.Printf("%2d. ID: %-3d | Nama: %-10s | Umur: %d\n", i+1, dataPasien[i].id, dataPasien[i].nama, dataPasien[i].umur)
 	}
 	fmt.Println()
@@ -87,17 +75,11 @@ func CetakDataPasien(dataPasien [NMAX]Pasien, jumlah int) {
 
 func CariDataPasien(dataPasien [NMAX]Pasien, jumlah int, namaCari string) Pasien {
 	var i int
-
-	// Looping untuk mengecek setiap pasien satu per satu
 	for i = 0; i < jumlah; i++ {
-		// Jika nama di data sama dengan nama yang dicari
 		if dataPasien[i].nama == namaCari {
-			return dataPasien[i] // Kembalikan data pasien tersebut
+			return dataPasien[i]
 		}
 	}
-
-	// Jika looping selesai tapi nama tidak ditemukan
-	// Tambahkan , "" di akhir sebelum tanda kurung kurawal tutup
 	return Pasien{-1, "Tidak Ditemukan", -1, ""}
 }
 
@@ -110,22 +92,22 @@ func BinarySearchPasien(data [NMAX]Pasien, jumlah int, namaCari string) int {
 		tengah = (kiri + kanan) / 2
 
 		if data[tengah].nama == namaCari {
-			return tengah // Mengembalikan INDEKS/POSISI data jika ditemukan
+			return tengah
 		} else if data[tengah].nama < namaCari {
-			kanan = tengah - 1 // Geser ke kiri karena huruf besar (Z, Y, X...) berada di indeks awal
+			kanan = tengah - 1 
 		} else {
-			kiri = tengah + 1 // Geser ke kanan karena huruf kecil (C, B, A...) berada di indeks akhir
+			kiri = tengah + 1
 		}
 	}
-	return -1 // Mengembalikan -1 jika nama tidak ditemukan
+	return -1
 }
 
 func InsertionSortAscendPasienByID(data *[NMAX]Pasien, jumlah int) {
 	var i, j int
-	var key Pasien // Deklarasi eksplisit var
+	var key Pasien
 
 	for i = 1; i < jumlah; i++ {
-		key = data[i] // Memakai assignment biasa
+		key = data[i]
 		j = i - 1
 		for j >= 0 && data[j].id > key.id {
 			data[j+1] = data[j]
@@ -137,10 +119,9 @@ func InsertionSortAscendPasienByID(data *[NMAX]Pasien, jumlah int) {
 
 func InsertionSortDescendPasienByNama(data *[NMAX]Pasien, jumlah int) {
 	var i, j int
-	var key Pasien // Deklarasi eksplisit tanpa :=
-
+	var key Pasien
 	for i = 1; i < jumlah; i++ {
-		key = data[i] // Menggunakan assignment biasa
+		key = data[i]
 		j = i - 1
 		for j >= 0 && data[j].nama < key.nama {
 			data[j+1] = data[j]
@@ -273,13 +254,13 @@ func PilihPaket(dataPasien *[NMAX]Pasien, jumlahPasien int) {
 
 			switch pilihan {
 			case 1:
-				dataPasien[i].paket = "1" // Menyimpan "1" untuk EPIC
+				dataPasien[i].paket = "1"
 				fmt.Printf("=> Pendaftaran berhasil! Pasien %s didaftarkan ke Paket EPIC.\n", dataPasien[i].nama)
 			case 2:
-				dataPasien[i].paket = "2" // Menyimpan "2" untuk LEGEND
+				dataPasien[i].paket = "2"
 				fmt.Printf("=> Pendaftaran berhasil! Pasien %s didaftarkan ke Paket LEGEND.\n", dataPasien[i].nama)
 			case 3:
-				dataPasien[i].paket = "3" // Menyimpan "3" untuk MYTHIC
+				dataPasien[i].paket = "3"
 				fmt.Printf("=> Pendaftaran berhasil! Pasien %s didaftarkan ke Paket MYTHIC.\n", dataPasien[i].nama)
 			default:
 				fmt.Println("Pilihan paket tidak tersedia. Silakan masukkan angka 1, 2, atau 3.")
@@ -287,7 +268,6 @@ func PilihPaket(dataPasien *[NMAX]Pasien, jumlahPasien int) {
 		}
 		i++
 	}
-
 	if !ketemu {
 		fmt.Println("Maaf, data pasien tidak ditemukan. Silakan daftarkan di Menu Kelola Data Pasien terlebih dahulu.")
 	}
@@ -341,7 +321,6 @@ func InputDataCheckup(dataHasil *[NMAX]Hasil, jumlahHasil *int, dataPasien [NMAX
 			fmt.Print("Masukkan Tanggal Periksa (DD-MM-YYYY): ")
 			fmt.Scan(&dataHasil[*jumlahHasil].tanggal)
 
-			// Kondisi 1: Berlaku untuk semua paket (1, 2, atau 3)
 			if pasienDipilih.paket == "1" || pasienDipilih.paket == "2" || pasienDipilih.paket == "3" {
 				fmt.Println("\n[ Form Pemeriksaan Fisik & Lab Dasar - EPIC ]")
 				fmt.Print("-> Tekanan Darah (Tensi) : ")
@@ -356,7 +335,6 @@ func InputDataCheckup(dataHasil *[NMAX]Hasil, jumlahHasil *int, dataPasien [NMAX
 				fmt.Scan(&dataHasil[*jumlahHasil].kolesterol)
 			}
 
-			// Kondisi 2: Tambahan untuk Legend dan Mythic (2 atau 3)
 			if pasienDipilih.paket == "2" || pasienDipilih.paket == "3" {
 				fmt.Println("\n[ Form Organ Dalam & Jantung - LEGEND ]")
 				fmt.Print("-> Kolesterol HDL        : ")
@@ -371,7 +349,6 @@ func InputDataCheckup(dataHasil *[NMAX]Hasil, jumlahHasil *int, dataPasien [NMAX
 				fmt.Scan(&dataHasil[*jumlahHasil].ekg)
 			}
 
-			// Kondisi 3: Khusus paket Mythic (3)
 			if pasienDipilih.paket == "3" {
 				fmt.Println("\n[ Form Advanced Executive - MYTHIC ]")
 				fmt.Print("-> HbA1c (Rata-rata Gula): ")
@@ -402,7 +379,6 @@ func InputDataCheckup(dataHasil *[NMAX]Hasil, jumlahHasil *int, dataPasien [NMAX
 func CetakHasilCheckup(h Hasil) {
 	var namaPaket string
 
-	// Terjemahin lagi kode angka ke teks pas mau dicetak ke lembar kertas hasil
 	if h.paket == "1" {
 		namaPaket = "EPIC"
 	} else if h.paket == "2" {
@@ -416,7 +392,7 @@ func CetakHasilCheckup(h Hasil) {
 	fmt.Printf("==================================================\n")
 	fmt.Printf("Nama Pasien     : %s\n", h.namaPasien)
 	fmt.Printf("Tanggal Periksa : %s\n", h.tanggal)
-	fmt.Printf("Paket MCU       : %s\n", namaPaket) // Mencetak string nama paketnya
+	fmt.Printf("Paket MCU       : %s\n", namaPaket)
 	fmt.Printf("Status Akhir    : %s\n", h.status)
 	fmt.Printf("--------------------------------------------------\n")
 
@@ -452,7 +428,6 @@ func Pemasukan(dataPasien [NMAX]Pasien, jumlahPasien int) {
 	var countEpic, countLegend, countMythic int
 	var totalEpic, totalLegend, totalMythic, grandTotal int
 
-	// Melakukan looping untuk menghitung pilihan paket dari setiap pasien
 	for i = 0; i < jumlahPasien; i++ {
 		if dataPasien[i].paket == "1" {
 			countEpic++
@@ -463,13 +438,11 @@ func Pemasukan(dataPasien [NMAX]Pasien, jumlahPasien int) {
 		}
 	}
 
-	// Menghitung nominal uang berdasarkan harga paket
 	totalEpic = countEpic * 500000
 	totalLegend = countLegend * 1000000
 	totalMythic = countMythic * 2000000
 	grandTotal = totalEpic + totalLegend + totalMythic
 
-	// Menampilkan laporan ke layar
 	fmt.Println("\n==================================================")
 	fmt.Println("               LAPORAN TOTAL PEMASUKAN            ")
 	fmt.Println("==================================================")
@@ -483,11 +456,10 @@ func Pemasukan(dataPasien [NMAX]Pasien, jumlahPasien int) {
 
 func main() {
 	var menu int
-	var jalan bool = true // Variabel penanda untuk perulangan
+	var jalan bool = true 
 	var namaCari string
 	var pasienDitemukan Pasien
 
-	// Perulangan akan terus berjalan selama 'jalan' bernilai true
 	for jalan {
 		fmt.Println("\n=== SISTEM MEDICAL CHECK-UP ===")
 		fmt.Println("1. Kelola Data Pasien")
@@ -499,11 +471,10 @@ func main() {
 		fmt.Scan(&menu)
 
 		switch menu {
-		case 1: // Anggap ini adalah pilihan "Kelola Data Pasien" di Menu Utama
+		case 1: 
 			var subJalan bool = true
 			var menuPasien int
 
-			// Perulangan khusus untuk Sub-Menu
 			for subJalan {
 				fmt.Println("\n=== MENU KELOLA DATA PASIEN ===")
 				fmt.Println("1. Tambah Data Pasien")
@@ -528,11 +499,7 @@ func main() {
 				case 3:
 					fmt.Print("Masukkan nama Pasien yang ingin dicari: ")
 					fmt.Scan(&namaCari)
-
-					// 1. Urutkan data pasien secara descending sebelum Binary Search
 					InsertionSortDescendPasienByNama(&dataPasien, jumlahPasien)
-
-					// 2. Cari pasien menggunakan Binary Search (Tanpa :=)
 					var indeksPasien int
 					indeksPasien = BinarySearchPasien(dataPasien, jumlahPasien, namaCari)
 
@@ -552,7 +519,7 @@ func main() {
 					HapusDataPasien(&dataPasien, &jumlahPasien)
 				case 5:
 					fmt.Println("Kembali ke Menu Utama...")
-					subJalan = false // Mematikan perulangan sub-menu agar keluar ke main switch
+					subJalan = false
 				default:
 					fmt.Println("Pilihan sub-menu tidak tersedia.")
 				}
@@ -560,7 +527,6 @@ func main() {
 		case 2:
 			var subJalanCheckup bool = true
 			var menuCheckup int
-			// === SUB-MENU CHECK-UP ===
 			for subJalanCheckup {
 				fmt.Println("\n=== MENU KELOLA DATA CHECK-UP ===")
 				fmt.Println("1. Pilih Paket MCU (Baru)")
@@ -572,37 +538,27 @@ func main() {
 
 				switch menuCheckup {
 				case 1:
-					TampilkanDaftarPaket()                // 1. Panggil teks daftarnya dulu agar user bisa baca
-					PilihPaket(&dataPasien, jumlahPasien) // 2. Langsung minta eksekusi pilihannya
+					TampilkanDaftarPaket()                
+					PilihPaket(&dataPasien, jumlahPasien)
 				case 2:
 					InputDataCheckup(&dataHasil, &jumlahHasil, dataPasien, jumlahPasien)
-					// ... (case 3 dan 4 tetap sama seperti sebelumnya)
 				case 3:
-					// 1. Minta input nama Pasien
 					fmt.Print("Masukkan nama Pasien untuk melihat riwayat check-up: ")
 					fmt.Scan(&namaCari)
 
-					// 2. URUTKAN DATA PASIEN (Wajib sebelum Binary Search)
 					InsertionSortDescendPasienByNama(&dataPasien, jumlahPasien)
-
-					// 3. CARI PASIEN MENGGUNAKAN BINARY SEARCH (Tanpa :=)
 					var indeksPasien int
 					indeksPasien = BinarySearchPasien(dataPasien, jumlahPasien, namaCari)
 
-					// 4. Cek apakah hasil Binary Search menemukan pasien (bukan -1)
 					if indeksPasien != -1 {
-						// Ambil data pasien dari hasil indeks binary search
 						pasienDitemukan = dataPasien[indeksPasien]
 						fmt.Printf("\n--- RIWAYAT CHECK-UP PASIEN: %s (ID: %d) ---\n", pasienDitemukan.nama, pasienDitemukan.id)
 
 						var adaRiwayat bool = false
 						var i int = 0
 
-						// 5. Tampilkan semua riwayat check-up dari dataHasil
 						for i < jumlahHasil {
 							if dataHasil[i].namaPasien == namaCari {
-								// DI SINI PERUBAHAN UTAMANYA:
-								// Memanggil fungsi cetak lengkap yang otomatis menyesuaikan paket Legend & Mythic
 								CetakHasilCheckup(dataHasil[i])
 								adaRiwayat = true
 							}
@@ -617,7 +573,7 @@ func main() {
 					}
 				case 4:
 					fmt.Println("Kembali ke Menu Utama...")
-					subJalanCheckup = false // Mematikan perulangan check-up agar keluar ke main switch
+					subJalanCheckup = false
 				default:
 					fmt.Println("Pilihan sub-menu tidak tersedia.")
 				}
@@ -626,7 +582,7 @@ func main() {
 			Pemasukan(dataPasien, jumlahPasien)
 		case 4:
 			fmt.Println("Terima kasih!")
-			jalan = false // Mengubah nilai menjadi false agar perulangan for berhenti
+			jalan = false
 		default:
 			fmt.Println("Menu tidak tersedia.")
 		}
