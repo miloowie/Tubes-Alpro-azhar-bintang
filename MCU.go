@@ -154,8 +154,7 @@ func HapusDataPasien(dataPasien *[NMAX]Pasien, jumlahPasien *int) {
 
 	fmt.Print("\nMasukkan Nama Pasien yang ingin dihapus: ")
 	fmt.Scan(&namaTarget)
-
-	for i = 0; i < *jumlahPasien; i++ {
+	for i = 0; i < *jumlahPasien && !ketemu; i++ {
 		if dataPasien[i].nama == namaTarget {
 			ketemu = true
 
@@ -164,7 +163,6 @@ func HapusDataPasien(dataPasien *[NMAX]Pasien, jumlahPasien *int) {
 			}
 			*jumlahPasien--
 			fmt.Println("Data pasien berhasil dihapus dari sistem!")
-			break
 		}
 	}
 
