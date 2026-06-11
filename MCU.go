@@ -55,6 +55,9 @@ var jumlahHasil int = 0
 
 func InputDataPasien(dataPasien *[NMAX]Pasien, jumlahPasien *int) {
 	var jumlahInput, i int
+	var isPenuh bool
+
+	isPenuh = false
 
 	fmt.Print("Masukkan jumlah pasien yang ingin diinput: ")
 	fmt.Scan(&jumlahInput)
@@ -67,7 +70,7 @@ func InputDataPasien(dataPasien *[NMAX]Pasien, jumlahPasien *int) {
 			*jumlahPasien++
 		} else {
 			fmt.Println("Peringatan, kapasitas data pasien sudah penuh! Sisa data tidak dapat dimasukkan.")
-			break
+			isPenuh = true
 		}
 	}
 	fmt.Println("Proses penambahan data pasien selesai.")
@@ -82,13 +85,19 @@ func CetakDataPasien(dataPasien [NMAX]Pasien, jumlah int) {
 }
 
 func CariDataPasienSeq(dataPasien [NMAX]Pasien, jumlah int, namaCari string) Pasien {
-	var i int
-	for i = 0; i < jumlah; i++ {
+	var i, ketemu int
+	var hasil Pasien
+
+	ketemu = 0
+	hasil = Pasien{-1, "Tidak Ditemukan", -1, ""}
+
+	for i = 0; i < jumlah && ketemu == 0; i++ {
 		if dataPasien[i].nama == namaCari {
-			return dataPasien[i]
+			hasil = dataPasien[i]
+			ketemu = 1
 		}
 	}
-	return Pasien{-1, "Tidak Ditemukan", -1, ""}
+	return hasil
 }
 
 func BinarySearchPasien(data [NMAX]Pasien, jumlah int, namaCari string) int {
@@ -313,7 +322,6 @@ func InputDataCheckup(dataHasil *[NMAX]Hasil, jumlahHasil *int, dataPasien [NMAX
 			dataHasil[*jumlahHasil].namaPasien = pasienDipilih.nama
 			dataHasil[*jumlahHasil].paket = pasienDipilih.paket
 
-			// Konversi kode angka ke teks nama paket buat judul/header
 			if pasienDipilih.paket == "1" {
 				namaPaket = "EPIC"
 			} else if pasienDipilih.paket == "2" {
@@ -370,11 +378,11 @@ func InputDataCheckup(dataHasil *[NMAX]Hasil, jumlahHasil *int, dataPasien [NMAX
 			if dataHasil[*jumlahHasil].gula > 140 || dataHasil[*jumlahHasil].kolesterol > 200 {
 				dataHasil[*jumlahHasil].status = "Perlu Tindakan (Gak Aman, Kurangi Begadang!)"
 			} else {
-				dataHasil[*jumlahHasil].status = "Normal (Mekanik Aman)"
+				dataHasil[*jumlahHasil].status = "Normal (Aman)"
 			}
 
 			*jumlahHasil++
-			fmt.Println("\n[+] Hasil check-up komprehensif berhasil disimpan ke sistem.")
+			fmt.Println("\n[+] Hasil check-up pasien berhasil disimpan ke sistem.")
 		} else {
 			fmt.Println("\n[!] Error: Kapasitas memori data hasil sudah penuh.")
 		}
@@ -405,7 +413,7 @@ func CetakHasilCheckup(h Hasil) {
 	fmt.Printf("--------------------------------------------------\n")
 
 	if h.paket == "1" || h.paket == "2" || h.paket == "3" {
-		fmt.Println("[ Hasil Pemeriksaan Fisik & Lab Dasar - EPIC ]")
+		fmt.Println("[ Hasil Pemeriksaan Fisik & Lab Dasar ]")
 		fmt.Printf("-> Tekanan Darah (Tensi) : %d mmHg\n", h.tekanan)
 		fmt.Printf("-> Denyut Nadi           : %d /menit\n", h.nadi)
 		fmt.Printf("-> Suhu Tubuh            : %.1f Celcius\n", h.suhu)
@@ -414,7 +422,7 @@ func CetakHasilCheckup(h Hasil) {
 	}
 
 	if h.paket == "2" || h.paket == "3" {
-		fmt.Println("\n[ Hasil Organ Dalam & Jantung - LEGEND ]")
+		fmt.Println("\n[ Hasil Organ Dalam & Jantung ]")
 		fmt.Printf("-> Kolesterol HDL        : %d mg/dL\n", h.hdl)
 		fmt.Printf("-> Kolesterol LDL        : %d mg/dL\n", h.ldl)
 		fmt.Printf("-> Trigliserida          : %d mg/dL\n", h.trigliserida)
@@ -423,7 +431,7 @@ func CetakHasilCheckup(h Hasil) {
 	}
 
 	if h.paket == "3" {
-		fmt.Println("\n[ Hasil Advanced Executive - MYTHIC ]")
+		fmt.Println("\n[ Hasil Advanced Executive]")
 		fmt.Printf("-> HbA1c (Rata-rata Gula): %.1f %%\n", h.hba1c)
 		fmt.Printf("-> Hasil USG Abdomen     : %s\n", h.usgPerut)
 		fmt.Printf("-> Kondisi Mata Gamer    : %s\n", h.kondisiMata)
@@ -451,7 +459,6 @@ func CariRiwayatPerTahun(dataHasil [NMAX]Hasil, jumlahHasil int, dataPasien [NMA
 	for i = 0; i < jumlahHasil; i++ {
 		if len(dataHasil[i].tanggal) == 10 && dataHasil[i].tanggal[6:] == tahunCari {
 			adaData = true
-
 			idPasien = -1
 			usiaPasien = -1
 			ketemuPasien = false
@@ -466,7 +473,6 @@ func CariRiwayatPerTahun(dataHasil [NMAX]Hasil, jumlahHasil int, dataPasien [NMA
 				j++
 			}
 
-			// Konversi kode angka paket ke teks nama paket untuk tampilan tabel
 			if dataHasil[i].paket == "1" {
 				namaPaket = "EPIC"
 			} else if dataHasil[i].paket == "2" {
@@ -477,7 +483,6 @@ func CariRiwayatPerTahun(dataHasil [NMAX]Hasil, jumlahHasil int, dataPasien [NMA
 				namaPaket = "Tanpa Paket"
 			}
 
-			// Menampilkan data sesuai format tabel yang kamu minta
 			fmt.Printf("%-3d | %-10s | %-4d | %-18s | %s\n",
 				idPasien,
 				dataHasil[i].namaPasien,
@@ -620,7 +625,7 @@ func main() {
 			var menuCheckup int
 			for subJalanCheckup {
 				fmt.Println("\n=== MENU KELOLA DATA CHECK-UP ===")
-				fmt.Println("1. Pilih Paket MCU (Baru)")
+				fmt.Println("1. Pilih Paket MCU")
 				fmt.Println("2. Tambah Hasil Check-up")
 				fmt.Println("3. Cari Riwayat Check-up Pasien")
 				fmt.Println("4. Cari Riwayat Check-up per Tahun")
