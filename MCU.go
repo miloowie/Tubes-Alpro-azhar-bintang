@@ -543,11 +543,36 @@ func Pemasukan(dataPasien [NMAX]Pasien, jumlahPasien int) {
 	fmt.Println("==================================================")
 }
 
+func DataDummy() {
+	dataPasien[0] = Pasien{id: 1005, nama: "Azhar", umur: 23, paket: "1"}
+	dataPasien[1] = Pasien{id: 1002, nama: "Karina", umur: 35, paket: "2"}
+	dataPasien[2] = Pasien{id: 1009, nama: "Bintang", umur: 45, paket: "3"}
+	dataPasien[3] = Pasien{id: 1001, nama: "Giselle", umur: 19, paket: "1"}
+	dataPasien[4] = Pasien{id: 1007, nama: "Jay", umur: 50, paket: "2"}
+	dataPasien[5] = Pasien{id: 1003, nama: "Yuta", umur: 28, paket: "3"}
+	dataPasien[6] = Pasien{id: 1010, nama: "Jake", umur: 60, paket: "1"}
+	dataPasien[7] = Pasien{id: 1004, nama: "Lisa", umur: 31, paket: "2"}
+	dataPasien[8] = Pasien{id: 1006, nama: "Keonho", umur: 42, paket: "3"}
+	dataPasien[9] = Pasien{id: 1008, nama: "Minji", umur: 25, paket: ""}
+
+	jumlahPasien = 10
+
+	dataHasil[0] = Hasil{namaPasien: "Azhar", paket: "1", tanggal: "12-05-2025", status: "Normal (Aman)", tekanan: 120, nadi: 80, suhu: 36.5, gula: 110, kolesterol: 180}
+	dataHasil[1] = Hasil{namaPasien: "Karina", paket: "2", tanggal: "14-06-2025", status: "Normal (Aman)", tekanan: 115, nadi: 75, suhu: 36.2, gula: 105, kolesterol: 190, hdl: 50, ldl: 110, trigliserida: 130, asamUrat: 5.4, ekg: "Normal"}
+	dataHasil[2] = Hasil{namaPasien: "Bintang", paket: "3", tanggal: "20-02-2026", status: "Perlu Tindakan (Gak Aman, Kurangi Begadang!)", tekanan: 145, nadi: 88, suhu: 37.0, gula: 150, kolesterol: 240, hdl: 40, ldl: 160, trigliserida: 190, asamUrat: 7.2, ekg: "Aritmia", hba1c: 6.8, usgPerut: "Fatty Liver", kondisiMata: "Silinder"}
+	dataHasil[3] = Hasil{namaPasien: "Giselle", paket: "1", tanggal: "01-03-2026", status: "Normal (Aman)", tekanan: 110, nadi: 82, suhu: 36.6, gula: 90, kolesterol: 160}
+	dataHasil[4] = Hasil{namaPasien: "Jay", paket: "2", tanggal: "15-03-2026", status: "Perlu Tindakan (Gak Aman, Kurangi Begadang!)", tekanan: 135, nadi: 85, suhu: 36.8, gula: 145, kolesterol: 210, hdl: 45, ldl: 140, trigliserida: 160, asamUrat: 6.8, ekg: "Normal"}
+
+	jumlahHasil = 5
+}
+
 func main() {
 	var menu int
 	var jalan bool = true
 	var namaCari string
 	var pasienDitemukan Pasien
+
+	DataDummy()
 
 	for jalan {
 		fmt.Println("\n=== SISTEM MEDICAL CHECK-UP ===")
