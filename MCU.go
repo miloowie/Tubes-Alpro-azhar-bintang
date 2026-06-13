@@ -492,18 +492,19 @@ func CariRiwayatPerTahun(dataHasil [NMAX]Hasil, jumlahHasil int, dataPasien [NMA
 	fmt.Println("=======================================================================")
 }
 
-func Pemasukan(dataPasien [NMAX]Pasien, jumlahPasien int) {
+func Pemasukan(dataHasil [NMAX]Hasil, jumlahHasil int) {
+	var tahunCari string
 	var i, j int
 	var countEpic, countLegend, countMythic int
 	var grandTotal int
-	var tahunCari string
 	var adaData bool = false
 
-	fmt.Print("Masukkan tahun pemeriksaan yang ingin dilihat (YYYY): ")
+	fmt.Print("Masukkan tahun laporan pemasukan yang ingin dicari (YYYY): ")
 	fmt.Scan(&tahunCari)
 
 	for i = 0; i < jumlahHasil; i++ {
 		if len(dataHasil[i].tanggal) == 10 && dataHasil[i].tanggal[6:] == tahunCari {
+			adaData = true
 			if dataHasil[i].paket == "1" {
 				countEpic++
 			} else if dataHasil[i].paket == "2" {
@@ -542,9 +543,9 @@ func Pemasukan(dataPasien [NMAX]Pasien, jumlahPasien int) {
 
 	grandTotal = listPaket[0].total + listPaket[1].total + listPaket[2].total
 
-	fmt.Println("\n==================================================")
-	fmt.Println("          LAPORAN PEMASUKAN PAKET MCU TAHUN %s       ", tahunCari)
-	fmt.Println("==================================================")
+	fmt.Printf("\n==================================================")
+	fmt.Printf("\n       LAPORAN PEMASUKAN PAKET MCU TAHUN %s       ", tahunCari)
+	fmt.Printf("\n==================================================\n")
 	for i = 0; i < 3; i++ {
 		fmt.Printf("%d. %s : %2d pasien x Rp %9d = Rp %d\n",
 			i+1,
@@ -708,7 +709,7 @@ func main() {
 				}
 			}
 		case 3:
-			Pemasukan(dataPasien, jumlahPasien)
+			Pemasukan(dataHasil, jumlahHasil)
 		case 4:
 			fmt.Println("Terima kasih!")
 			jalan = false
