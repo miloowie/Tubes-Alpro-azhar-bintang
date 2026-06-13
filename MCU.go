@@ -461,7 +461,7 @@ func CariRiwayatPerTahun(dataHasil [NMAX]Hasil, jumlahHasil int, dataPasien [NMA
 				if dataPasien[j].nama == dataHasil[i].namaPasien {
 					idPasien = dataPasien[j].id
 					usiaPasien = dataPasien[j].umur
-					ketemuPasien = true // Mengubah boolean agar loop berhenti otomatis
+					ketemuPasien = true
 				}
 				j++
 			}
@@ -496,15 +496,31 @@ func Pemasukan(dataPasien [NMAX]Pasien, jumlahPasien int) {
 	var i, j int
 	var countEpic, countLegend, countMythic int
 	var grandTotal int
+	var tahunCari string
+	var adaData bool = false
 
-	for i = 0; i < jumlahPasien; i++ {
-		if dataPasien[i].paket == "1" {
-			countEpic++
-		} else if dataPasien[i].paket == "2" {
-			countLegend++
-		} else if dataPasien[i].paket == "3" {
-			countMythic++
+	fmt.Print("Masukkan tahun pemeriksaan yang ingin dilihat (YYYY): ")
+	fmt.Scan(&tahunCari)
+
+	for i = 0; i < jumlahHasil; i++ {
+		if len(dataHasil[i].tanggal) == 10 && dataHasil[i].tanggal[6:] == tahunCari {
+			if dataHasil[i].paket == "1" {
+				countEpic++
+			} else if dataHasil[i].paket == "2" {
+				countLegend++
+			} else if dataHasil[i].paket == "3" {
+				countMythic++
+			}
 		}
+	}
+
+	if !adaData {
+		fmt.Printf("\n==================================================")
+		fmt.Printf("\n       LAPORAN PEMASUKAN PAKET MCU TAHUN %s       ", tahunCari)
+		fmt.Printf("\n==================================================\n")
+		fmt.Println("   Tidak ada data pemasukan pada tahun tersebut.")
+		fmt.Println("==================================================")
+		return
 	}
 
 	var listPaket [3]LaporanPaket
@@ -527,7 +543,7 @@ func Pemasukan(dataPasien [NMAX]Pasien, jumlahPasien int) {
 	grandTotal = listPaket[0].total + listPaket[1].total + listPaket[2].total
 
 	fmt.Println("\n==================================================")
-	fmt.Println("          LAPORAN PEMASUKAN PAKET MCU          ")
+	fmt.Println("          LAPORAN PEMASUKAN PAKET MCU TAHUN %s       ", tahunCari)
 	fmt.Println("==================================================")
 	for i = 0; i < 3; i++ {
 		fmt.Printf("%d. %s : %2d pasien x Rp %9d = Rp %d\n",
